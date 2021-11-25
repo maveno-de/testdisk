@@ -54,9 +54,8 @@ static void file_rename_plot(file_recovery_t *file_recovery) {
   char fName[94];
   char k[1];
 
-  if((pFile = fopen("/var/local/osgw/lib/osgw/.local/src/tdtest/plotheader", "rb")) == NULL) {
+  if((pFile = fopen(file_recovery->filename, "rb")) == NULL)
     return;
-  }
 
   if(fseek(pFile, 19, SEEK_SET)) {
     fclose(pFile);
