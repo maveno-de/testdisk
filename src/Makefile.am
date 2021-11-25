@@ -276,6 +276,7 @@ file_C			= filegen.c \
 			  file_pfx.c \
 			  file_pgdump.c \
 			  file_plist.c \
+			  file_plot.c \
 			  file_plr.c \
 			  file_plt.c \
 			  file_png.c \
