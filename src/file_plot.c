@@ -42,8 +42,6 @@ const file_hint_t file_hint_plot = {
   .register_header_check = &register_header_check_plot
 };
 
-// plot-k33-2021-10-21-01-50-2fcd533d448f64f8ee1332ec4ac06ea5f962cfa9cc196b00bf2ab67deb17eb81.plot
-
 /*@
   @ requires file_recovery->file_rename==&file_rename_plot;
   @ requires valid_file_rename_param(file_recovery);
@@ -55,47 +53,55 @@ static void file_rename_plot(file_recovery_t *file_recovery) {
   char plotId[32];
   char fName[94];
   char k[1];
-  size_t lu;
-  unsigned int i;
 
-  if((pFile = fopen(file_recovery->filename, "rb")) == NULL) {
+  if((pFile = fopen("/var/local/osgw/lib/osgw/.local/src/tdtest/plotheader", "rb")) == NULL) {
     return;
   }
 
-  if(!fseek(pFile, 19, SEEK_SET)) {
-    fclose(pFile);
-    return;      
-  }
-
-  if((lu = fread(&plotId, 1, 32, pFile)) <= 0) {
+  if(fseek(pFile, 19, SEEK_SET)) {
     fclose(pFile);
     return;
   }
-  if((lu = fread(&k, 1, 1, pFile)) <= 0) {
+
+  if(fread(&plotId, 1, 32, pFile) <= 0) {
+    fclose(pFile);
+    return;
+  }
+
+  if(fread(&k, 1, 1, pFile) <= 0) {
     fclose(pFile);
     return;
   }
   fclose(pFile);
 
+  int fptr = sprintf(fName, "plot-k");
 
-  sprintf(fName+6, "%02d", k);
+  fptr += sprintf(fName+fptr, "%02d", k[0]);
+  fptr += sprintf(fName+fptr, "-");
 
   time_t t = time(NULL);
-  struct tm = *localtime(&t);
+  struct tm tm = *localtime(&t);
 
-  sprintf(fName+9 , "%04d", tm.tm_year + 1900);
-  sprintf(fName+14, "%02d", tm.tm_mon);
-  sprintf(fName+17, "%02d", tm.tm_mday);
-  sprintf(fName+20, "%02d", tm.tm_hour);
-  sprintf(fName+23, "%02d", tm.tm_min);
+  fptr += sprintf(fName+fptr , "%04d", tm.tm_year + 1900);
+  fptr += sprintf(fName+fptr, "-");
+  fptr += sprintf(fName+fptr, "%02d", tm.tm_mon);
+  fptr += sprintf(fName+fptr, "-");
+  fptr += sprintf(fName+fptr, "%02d", tm.tm_mday);
+  fptr += sprintf(fName+fptr, "-");
+  fptr += sprintf(fName+fptr, "%02d", tm.tm_hour);
+  fptr += sprintf(fName+fptr, "-");
+  fptr += sprintf(fName+fptr, "%02d", tm.tm_min);
+  fptr += sprintf(fName+fptr, "-");
 
-  for (i = 0; i < 32; i++)
-    sprintf(fName+26+i, "%02X", plotId[i]);
+  for (unsigned int i = 0; i < 32; i++)
+    fptr += sprintf(fName+fptr, "%02X", plotId[i]);
 
-  fName[93] = '\0';
+  sprintf(fName+fptr, ".plot");
 
+  for(int i = 0; fName[i]; i++)
+    fName[i] = tolower(fName[i]);
 
-  file_rename_unicode(file_recovery, title, 94, 0, NULL, 1);
+  file_rename_unicode(file_recovery, fName, 94, 0, NULL, 1);
     return;
 }
 
